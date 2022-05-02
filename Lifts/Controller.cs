@@ -8,21 +8,15 @@ namespace Lifts
 {
     class Controller
     {
-
         public Motor motor = new Motor();
-
 
         public Door door = new Door();
 
-   
         public StateElevator stateElevator = StateElevator.wait;
 
-  
         private bool FinishOnFloor = true;
 
-  
         private int direction;
-
 
         public int Direction
         {
@@ -30,9 +24,6 @@ namespace Lifts
             set { direction = value; }
         }
 
-      
-        private int currentFloor;
-  
         public int CurrentFloor
         {
             get { return currentFloor; }
@@ -41,22 +32,35 @@ namespace Lifts
 
         public void Move()
         {
-            if (direction == 1) 
+            if (direction == 1)
             {
-                motor.Up(ref currentFloor); 
-                stateElevator = StateElevator.up; 
+                motor.Up(ref currentFloor);
+                stateElevator = StateElevator.up;
             }
             else if (direction == -1)
             {
-                motor.Down(ref currentFloor); 
-                stateElevator = StateElevator.down; 
+                motor.Down(ref currentFloor);
+                stateElevator = StateElevator.down;
             }
-		}
-    }
-
-
-    enum StateElevator
-    {
-        up, down, wait, waitonfloor
+            else if (direction == 2)
+            {
+                motor.StopOnFloor(ref FinishOnFloor);
+                if (motor.StopStatus == 1) door.Open();
+                else door.Close();
+                if (FinishOnFloor)
+                {
+                    stateElevator = StateElevator.wait;
+                    direction = 0;
+                }
+                else
+                {
+                    stateElevator = StateElevator.waitonfloor;
+                }
+            }
+            else
+            {
+                motor.Stop();
+            }
+        }
     }
 }
